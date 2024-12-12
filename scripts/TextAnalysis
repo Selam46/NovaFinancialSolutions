@@ -1,0 +1,78 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from nltk.sentiment import SentimentIntensityAnalyzer
+from sklearn.feature_extraction.text import CountVectorizer
+from wordcloud import WordCloud
+import nltk
+from datetime import datetime
+
+# Ensure NLTK is ready
+nltk.download('vader_lexicon')
+
+# Load dataset
+df = pd.read_csv("C:/Users/hp/Documents/raw_analyst_ratings.csv")
+
+# -------------------------------------------
+# 2. Text Analysis (Sentiment Analysis & Topic Modeling)
+
+# Sentiment Analysis
+sia = SentimentIntensityAnalyzer()
+
+# Function to get sentiment label (positive, negative, neutral)
+def get_sentiment_label(text):
+    if pd.isna(text):
+        return "neutral"  # Handle missing values
+    sentiment_score = sia.polarity_scores(text)['compound']
+    if sentiment_score > 0.05:
+        return "positive"
+    elif sentiment_score < -0.05:
+        return "negative"
+    else:
+        return "neutral"
+
+# Apply sentiment analysis to the 'headline' column
+df['sentiment'] = df['headline'].apply(get_sentiment_label)
+
+# Sentiment distribution
+sentiment_distribution = df['sentiment'].value_counts()
+
+# Display Sentiment Distribution
+print("\n" + "="*50)
+print("Sentiment Analysis Results:")
+print(sentiment_distribution)
+print("\n" + "="*50)
+
+# Plotting the sentiment distribution
+plt.figure(figsize=(8, 6))
+sns.countplot(x='sentiment', data=df, palette='Set2')
+plt.title('Sentiment Distribution in Headlines')
+plt.xlabel('Sentiment')
+plt.ylabel('Frequency')
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+# Topic Modeling and Keyword Extraction
+# Use CountVectorizer to extract frequent terms from the headlines
+vectorizer = CountVectorizer(stop_words='english', max_features=20)
+X = vectorizer.fit_transform(df['headline'])
+keywords = vectorizer.get_feature_names_out()
+
+# Displaying the most common keywords
+print("\n" + "="*50)
+print("Most Common Keywords in Headlines:")
+print(keywords)
+print("\n" + "="*50)
+
+# Generate WordCloud for keywords
+wordcloud = WordCloud(width=800, height=400, background_color='white').generate(' '.join(df['headline'].dropna()))
+plt.figure(figsize=(10, 6))
+plt.imshow(wordcloud, interpolation='bilinear')
+plt.axis('off')
+plt.title('Most Frequent Keywords (WordCloud)')
+plt.tight_layout()
+plt.show()
+
+# -------------------------------------------

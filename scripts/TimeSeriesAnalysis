@@ -1,0 +1,80 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from nltk.sentiment import SentimentIntensityAnalyzer
+from sklearn.feature_extraction.text import CountVectorizer
+from wordcloud import WordCloud
+import nltk
+from datetime import datetime
+
+# Ensure NLTK is ready
+nltk.download('vader_lexicon')
+
+# Load dataset
+df = pd.read_csv("C:/Users/hp/Documents/raw_analyst_ratings.csv")
+
+# -------------------------------------------
+# 3. Time Series Analysis
+
+# A. Frequency of publication over time (Daily, Weekly, Monthly)
+# Parse the date column into datetime format
+df['date'] = pd.to_datetime(df['date'], errors='coerce', format=None)
+
+# Daily publication frequency
+daily_frequency = df.groupby(df['date'].dt.date).size()
+
+# Weekly publication frequency (using the week of year)
+weekly_frequency = df.groupby(df['date'].dt.isocalendar().week).size()
+
+# Monthly publication frequency
+monthly_frequency = df.groupby(df['date'].dt.to_period('M')).size()
+
+# Plot Daily Publication Frequency
+plt.figure(figsize=(12, 6))
+daily_frequency.plot(kind='line', color='blue')
+plt.title('Publication Frequency Over Time (Daily)', fontsize=14)
+plt.xlabel('Date', fontsize=12)
+plt.ylabel('Number of Articles', fontsize=12)
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+# Plot Weekly Publication Frequency
+plt.figure(figsize=(12, 6))
+weekly_frequency.plot(kind='line', color='green')
+plt.title('Publication Frequency Over Time (Weekly)', fontsize=14)
+plt.xlabel('Week of Year', fontsize=12)
+plt.ylabel('Number of Articles', fontsize=12)
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+# Plot Monthly Publication Frequency
+plt.figure(figsize=(12, 6))
+monthly_frequency.plot(kind='line', color='purple')
+plt.title('Publication Frequency Over Time (Monthly)', fontsize=14)
+plt.xlabel('Month', fontsize=12)
+plt.ylabel('Number of Articles', fontsize=12)
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+# B. Analysis of Publishing Times (Hour of Day)
+df['hour_of_day'] = df['date'].dt.hour
+
+# Hourly publication frequency
+hourly_frequency = df.groupby('hour_of_day').size()
+
+# Plot Hourly Publication Frequency
+plt.figure(figsize=(12, 6))
+hourly_frequency.plot(kind='bar', color='orange')
+plt.title('Publication Frequency by Hour of Day', fontsize=14)
+plt.xlabel('Hour of Day', fontsize=12)
+plt.ylabel('Number of Articles', fontsize=12)
+plt.xticks(rotation=0)
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+# -------------------------------------------
