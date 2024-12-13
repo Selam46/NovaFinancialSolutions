@@ -16,7 +16,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: "3.9"
 
       - name: Install dependencies
         run: |
@@ -26,5 +26,5 @@ jobs:
 
       - name: Run tests
         run: |
-          source env/bin/activate
-          pytest
+          .\env\Scripts\activate  # Activate the virtual environment
+          python tests\test_financial_metrics.py
