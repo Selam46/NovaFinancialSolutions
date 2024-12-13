@@ -27,8 +27,14 @@ jobs:
           .\.venv\Scripts\activate  # Activate the virtual environment
           pip install -r requirements.txt  # Install dependencies
 
+      # Step to set PYTHONPATH for module discovery
+      - name: Set PYTHONPATH
+        run: |
+          $env:PYTHONPATH = "${{ github.workspace }}"  # Set the current directory as PYTHONPATH
+          echo "PYTHONPATH set to $env:PYTHONPATH"
+
       # Step to run your test script
       - name: Run tests
         run: |
           .\.venv\Scripts\activate  # Activate the virtual environment
-          python tests\test_financial_metrics.py  # Replace with the actual path to your test script
+          python -m unittest discover -s tests -p "test_*.py"  # Discover and run all tests in the "tests" folder
