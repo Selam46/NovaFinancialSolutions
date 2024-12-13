@@ -33,4 +33,3 @@ for file_path in csv_files:
     print(f"{stock_symbol} Data:")
     print(df.head(), "\n")
 
-# Now you can access each DataFrame using dataframes['AAPL'], dataframes['AMZN'], etc.
