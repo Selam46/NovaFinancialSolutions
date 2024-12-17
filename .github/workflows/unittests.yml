@@ -2,39 +2,26 @@ name: Run Tests
 
 on:
   push:
-    branches:
-      - main
-      - task-1
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
   test:
-    runs-on: windows-latest # Use Windows environment
+    runs-on: windows-latest
     steps:
-      # Step to checkout the code from the repository
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v2
 
-      # Step to set up Python environment
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Set Up Python
+        uses: actions/setup-python@v2
         with:
-          python-version: "3.12" # Specify Python version 3.12
+          python-version: "3.12"
 
-      # Step to install dependencies
-      - name: Install dependencies
+      - name: Install Dependencies
         run: |
-          python -m venv .venv  # Create a virtual environment named .venv
-          .\.venv\Scripts\activate  # Activate the virtual environment
-          pip install -r requirements.txt  # Install dependencies
+          pip install -r requirements.txt
 
-      # Step to set PYTHONPATH for module discovery
-      - name: Set PYTHONPATH
+      - name: Run Tests
         run: |
-          $env:PYTHONPATH = "${{ github.workspace }}"  # Set the current directory as PYTHONPATH
-          echo "PYTHONPATH set to $env:PYTHONPATH"
-
-      # Step to run your test script
-      - name: Run tests
-        run: |
-          .\.venv\Scripts\activate  # Activate the virtual environment
-          python -m unittest discover -s tests -p "test_*.py"  # Discover and run all tests in the "tests" folder
+          python -m unittest discover tests

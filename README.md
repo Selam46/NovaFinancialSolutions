@@ -2,61 +2,61 @@
 
 ## Overview
 
-Nova Financial Solutions is a project aimed at providing tools for analyzing financial data. This includes quantitative analysis, visualization of stock prices, and technical indicators. The project leverages various libraries to facilitate data processing and analysis.
+Nova Financial Solutions is a data-driven project that analyzes the relationship between financial news and stock market movements. It includes exploratory data analysis, quantitative analysis, and correlation analysis to uncover patterns and insights using Python tools and libraries.
 
 ## Objectives
 
-- Perform quantitative analysis on stock data.
-- Visualize stock price trends and technical indicators.
-- Provide tools for data preprocessing and analysis.
+Perform Exploratory Data Analysis (EDA) on financial news datasets.
+Analyze stock price data with technical indicators using TA-Lib and PyNance.
+Identify correlations between news sentiment and stock price movements.
 
 ## Directory Structure
 
-````plaintext
-├── .github/               # GitHub workflows for CI/CD
-├── .venv/                 # Virtual environment for package management
-├── .vscode/               # VS Code settings for the project
-├── notebooks/             # Jupyter notebooks for analysis
-│   ├── exploratory_analysis.ipynb  # EDA on financial news dataset
-├── QuantitativeAnalysis/   # Main package for quantitative analysis
-│   ├── __init__.py        # Package initialization
-│   ├── FinancialMetrics.py # Module for calculating financial metrics
-│   ├── LoadStockPrices.py  # Module for loading stock price data
-│   ├── TechnicalIndicators.py # Module for technical indicators analysis
-│   └── Visualization.py    # Module for visualizing data
-├── scripts/               # Utility scripts for various tasks
-│   ├── __init__.py        # Package initialization
-│   ├── PublisherAnalysis.py # Script for analyzing publishers
-│   ├── TestAnalysis.py     # Script for conducting tests
-│   └── TimeSeriesAnalysis.py # Script for time series analysis
-├── tests/                 # Unit tests for the project
-│   ├── __init__.py        # Package initialization
-│   └── test_financial_metrics.py  # Tests for FinancialMetrics module
-├── .gitignore             # Files and directories to ignore in Git
-├── README.md              # Project documentation
-└── requirements.txt       # Required Python libraries
+NovaFinancialSolutions/
+├── .github/ # CI/CD workflows
+├── .vscode/ # VS Code settings
+├── notebooks/ # Jupyter Notebooks for EDA and analysis
+│ ├── exploratory_analysis.ipynb  
+│ └── news_stock_correlation.ipynb
+├── news-analysis/ # News dataset analysis modules
+│ ├── PublisherAnalysis.py
+│ ├── TestAnalysis.py
+│ └── TimeSeriesAnalysis.py
+├── QuantitativeAnalysis/ # Stock price quantitative analysis
+│ ├── FinancialMetrics.py
+│ ├── LoadStockPrices.py
+│ ├── TechnicalIndicators.py
+│ └── Visualization.py
+├── stock-news-correlation/ # Correlation between news sentiment and stock prices
+│ ├── daily_stock_analysis.py
+│ ├── data_processing.py
+│ ├── sentiment_analysis.py
+│ └── correlation_analysis.py
+├── tests/ # Unit tests
+│ ├── test_sentiment_analysis.py
+|
+├── .gitignore # Git ignored files
+├── requirements.txt # Required Python libraries
+└── README.md # Project documentation
 
+### Setup Instructions
 
-### Set up Instructions
-Step 1: Clone the Repository
+Clone the Repository
 
-git clone https://github.com/Selam46/solar-radiation-study.git
+git clone https://github.com/Selam46/NovaFinancialSolutions.git  
+cd NovaFinancialSolutions
 
-cd solar-radiation-study
+##### Create a Virtual Environment and Install Dependencies
 
-Step 2: Install Dependencies
+python3 -m venv venv  
+source venv/bin/activate # On Windows: venv\Scripts\activate  
+pip install -r requirements.txt  
+then Run
 
-Create a virtual environment and install required packages:
+##### Key Tools and Libraries
 
-python3 -m venv venv
-
-source venv/bin/activate # On Windows: venv\Scripts\activate
-
-To run the project,Install the required libraries using `pip`:
-
-```bash
-pip install nltk scikit-learn wordcloud TA-Lib yfinance
-
-pip install -r requirements.txt
-
-````
+pandas, numpy: Data manipulation
+TA-Lib, PyNance: Technical indicators and financial metrics
+nltk, TextBlob: Sentiment analysis
+matplotlib, seaborn: Data visualization
+pytest: Unit testing framework
