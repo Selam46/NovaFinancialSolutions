@@ -1,6 +1,5 @@
 import pandas as pd
 import os
-from datetime import datetime, timedelta
 from textblob import TextBlob
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -9,13 +8,12 @@ import seaborn as sns
 news_path = "C:\\Users\\hp\\Documents\\raw_analyst_ratings.csv"
 news_df = pd.read_csv(news_path)
 
-# Check if 'date' column exists in news data
+# Ensure 'date' column exists and is properly formatted
 if 'date' in news_df.columns:
-    # Convert `date` column to datetime and ensure consistency
     news_df['date'] = pd.to_datetime(news_df['date'], errors='coerce')
-    if news_df['date'].dt.tz is None:
-        news_df['date'] = news_df['date'].dt.tz_localize('UTC')
-    else:
+    if news_df['date'].dt.tz is None:  # Check if timezone-naive
+        news_df['date'] = news_df['date'].dt.tz_localize('UTC', nonexistent='shift_forward', ambiguous='NaT')
+    else:  # If already timezone-aware, convert to UTC
         news_df['date'] = news_df['date'].dt.tz_convert('UTC')
 else:
     raise KeyError("The 'date' column is missing in the news data.")
@@ -38,25 +36,21 @@ for file in stock_files:
 
     # Check if 'Date' column exists in stock data
     if 'Date' in df.columns:
-        # Fix date column
         df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
+        df = df.dropna(subset=['Date'])  # Drop rows with invalid dates
+        df = df.sort_values('Date')  # Sort by date
 
-        # Drop rows with invalid dates
-        df = df.dropna(subset=['Date'])
-
-        # Sort by date
-        df = df.sort_values('Date')
-
-        # Localize dates to UTC for consistency
+        # Ensure UTC timezone
         if df['Date'].dt.tz is None:
             df['Date'] = df['Date'].dt.tz_localize('UTC')
         else:
             df['Date'] = df['Date'].dt.tz_convert('UTC')
 
+        # Calculate daily stock returns
+        df['daily_return'] = df['Close'].pct_change() * 100
         stock_data[ticker] = df
     else:
         print(f"Warning: The 'Date' column is missing in the stock data for {ticker}. Skipping this file.")
-        continue
 
 # Step 3: Match News Dates to Stock Trading Days
 aligned_data = []
@@ -66,16 +60,12 @@ for _, news_row in news_df.iterrows():
 
     if ticker in stock_data:
         stock_df = stock_data[ticker]
-
         # Find the closest prior trading day
         trading_days = stock_df['Date']
         matching_date = trading_days[trading_days <= news_date].max()
 
         if pd.notna(matching_date):
-            # Get the stock data for the matching date
             stock_row = stock_df[stock_df['Date'] == matching_date].iloc[0]
-
-            # Combine news and stock data
             aligned_row = {
                 **news_row.to_dict(),
                 **stock_row.to_dict()
@@ -99,29 +89,66 @@ news_df['sentiment'] = news_df['headline'].apply(analyze_sentiment)
 aligned_df = pd.DataFrame(aligned_data)
 aligned_df['sentiment'] = aligned_df['headline'].apply(analyze_sentiment)
 
-output_path = "C:\\Users\\hp\\Documents\\aligned_news_stock_data_with_sentiment.csv"
-aligned_df.to_csv(output_path, index=False)
+print("Aligned data with sentiment:")
+print(aligned_df.head())
 
-print(f"Aligned data with sentiment saved to {output_path}")
+# Step 6: Aggregate Sentiments
+aligned_df['sentiment_score'] = aligned_df['sentiment'].map({
+    'positive': 1,
+    'neutral': 0,
+    'negative': -1
+})
 
-# Step 6: Visualization
+average_sentiment = aligned_df.groupby(['stock', 'Date']).agg(
+    avg_sentiment=('sentiment_score', 'mean')
+).reset_index()
 
-# Plot 1: Sentiment Distribution
+print("\nAggregated Sentiment Data:")
+print(average_sentiment.head())
+
+# Step 7: Correlation Analysis
+correlation_results = {}
+for ticker, df in stock_data.items():
+    if ticker in average_sentiment['stock'].unique():
+        sentiment_data = average_sentiment[average_sentiment['stock'] == ticker]
+        stock_returns = df[['Date', 'daily_return']]
+        merged_data = pd.merge(sentiment_data, stock_returns, on='Date', how='inner')
+
+        if len(merged_data) > 1:
+            correlation = merged_data['avg_sentiment'].corr(merged_data['daily_return'])
+            correlation_results[ticker] = correlation
+        else:
+            print(f"Not enough data to compute correlation for {ticker}.")
+
+# Step 8: Visualizations
 plt.figure(figsize=(8, 5))
-sns.countplot(data=news_df, x='sentiment', palette='viridis')
-plt.title('Sentiment Distribution of Headlines', fontsize=16)
-plt.xlabel('Sentiment', fontsize=12)
-plt.ylabel('Count', fontsize=12)
-plt.tight_layout()
+sns.countplot(x=news_df['sentiment'], palette="viridis")
+plt.title("Sentiment Distribution")
+plt.xlabel("Sentiment")
+plt.ylabel("Count")
 plt.show()
 
-# Plot 2: Sentiment per Stock
-plt.figure(figsize=(12, 6))
-sns.countplot(data=aligned_df, x='stock', hue='sentiment', palette='viridis')
-plt.title('Sentiment Analysis for Each Stock', fontsize=16)
-plt.xlabel('Stock', fontsize=12)
-plt.ylabel('Count', fontsize=12)
-plt.xticks(rotation=45)
-plt.legend(title='Sentiment')
-plt.tight_layout()
-plt.show()
+for ticker, df in stock_data.items():
+    plt.figure(figsize=(14, 6))
+    plt.plot(df['Date'], df['daily_return'], label=f'{ticker} Daily Returns', color='green')
+    plt.title(f'{ticker} Daily Returns')
+    plt.xlabel('Date')
+    plt.ylabel('Daily Return (%)')
+    plt.legend()
+    plt.show()
+
+for ticker in average_sentiment['stock'].unique():
+    stock_sentiment = average_sentiment[average_sentiment['stock'] == ticker]
+    plt.figure(figsize=(14, 6))
+    plt.plot(stock_sentiment['Date'], stock_sentiment['avg_sentiment'], label=f'{ticker} Avg Sentiment', color='blue')
+    plt.title(f'Average Daily Sentiment for {ticker}')
+    plt.xlabel('Date')
+    plt.ylabel('Average Sentiment')
+    plt.legend()
+    plt.show()
+
+print("\nCorrelation Results:")
+for ticker, correlation in correlation_results.items():
+    print(f"{ticker}: {correlation}")
+
+print("\nCorrelation results are displayed above.")

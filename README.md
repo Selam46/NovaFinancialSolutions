@@ -14,12 +14,12 @@ Nova Financial Solutions is a data-driven project that analyzes the relationship
 
 ```plaintext
 NovaFinancialSolutions/
-├── .github/                 # CI/CD workflows
+
 ├── .vscode/                 # VS Code settings
 ├── notebooks/               # Jupyter Notebooks for EDA and analysis
 │   ├── exploratory_analysis.ipynb
 │   └── news_stock_correlation.ipynb
-├── news-analysis/           # News dataset analysis modules
+├── scripts/           # News dataset analysis modules
 │   ├── PublisherAnalysis.py
 │   ├── TestAnalysis.py
 │   └── TimeSeriesAnalysis.py
@@ -28,14 +28,11 @@ NovaFinancialSolutions/
 │   ├── LoadStockPrices.py
 │   ├── TechnicalIndicators.py
 │   └── Visualization.py
-├── stock-news-correlation/  # Correlation between news sentiment and stock prices
+├── sentiment_correlation_analysis/  # Correlation between news sentiment and stock prices
 │   ├── daily_stock_analysis.py
 │   ├── data_processing.py
 │   ├── sentiment_analysis.py
 │   └── correlation_analysis.py
-├── tests/                   # Unit tests
-│   ├── test_sentiment_analysis.py
-│   └── test_data_processing.py
 ├── .gitignore               # Git ignored files
 ├── requirements.txt         # Required Python libraries
 └── README.md                # Project documentation
